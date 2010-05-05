@@ -18,6 +18,17 @@ class TerrastoreClient (hostName: String, port: Int) {
     JsonParser (new CharSequenceReader(res))
   }
 
+  def putDocument (bucket:String, key: String, content:String) = {
+    try {
+      val http = new Http
+      val req = :/(hostName, port) / bucket / key <<< content <:< Map("Content-Type"-> "application/json")
+      val res = http (req as_str)
+      println (res)
+    } catch {
+       case e if (e.getMessage.startsWith("response has no entity")) => println ("Ignore this error")
+    }
+  }
+
   def getValue (bucket: String, key: String) : Any = {
     val http = new Http
     val req = :/(hostName, port) / bucket / key
