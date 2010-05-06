@@ -1,6 +1,7 @@
-import dispatch.json.JsonParser
+import dispatch.json.{JsValue, JsArray, Js, JsonParser}
 import dispatch.{:/, Http}
 import util.parsing.input.CharSequenceReader
+import util.parsing.json.JSON
 
 /**
  * Created by IntelliJ IDEA.
@@ -11,7 +12,7 @@ import util.parsing.input.CharSequenceReader
  */
 
 class TerrastoreClient (hostName: String, port: Int) {
-  def getBuckets : Any = {
+  def getBuckets : JsValue = {
     val http = new Http
     val req = :/(hostName, port)
     val res = http(req as_str)
@@ -34,5 +35,15 @@ class TerrastoreClient (hostName: String, port: Int) {
     val req = :/(hostName, port) / bucket / key
     val res = http(req as_str)
     JsonParser (new CharSequenceReader(res))
+  }
+
+  def getAllValues (bucket:String):List[Any] = {
+    val http = new Http
+    val req = :/(hostName, port) / bucket
+    val res = http(req as_str)
+    JSON.parse(res) match {
+      case Some(s) => s
+      case None => List.empty
+    }
   }
 }

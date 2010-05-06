@@ -9,9 +9,10 @@
 
 object TerrastoreClientTest {
   def main(args: Array[String]) {
-    val client = new TerrastoreClient("localhost", 8020)
+    val client = new TerrastoreClient("localhost", 8010)
 //    println(client.getBuckets)
-    client.putDocument("bucket", "abc", "{\"bucket-test1\":\"test1\"}")
+//    client.putDocument("bucket", "abc", "{\"bucket-test1\":\"test1\"}")
 //    println(client.getValue("bucket", ""))
+    println(client.getAllValues("bucket"))
   }
 }
