@@ -25,18 +25,13 @@ class TerrastoreClient (hostName: String, port: Int) {
   def removeBucket (bucketName:String) = {
     val http = new Http
     val req = :/(hostName, port)
-    http(req.DELETE / bucketName as_str)
+    http(req.DELETE / bucketName >|)
   }
 
   def putDocument (bucket:String, key: String, content:String) = {
-    try {
       val http = new Http
       val req = :/(hostName, port) / bucket / key <<< content <:< Map("Content-Type"-> "application/json")
-      val res = http (req as_str)
-      println (res)
-    } catch {
-       case e if (e.getMessage.startsWith("response has no entity")) => println ("Ignore this error")
-    }
+      val res = http (req >|)
   }
 
   def getValue (bucket: String, key: String) : Any = {
