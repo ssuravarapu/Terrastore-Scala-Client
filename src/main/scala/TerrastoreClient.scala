@@ -1,5 +1,5 @@
 import dispatch.json.{JsValue, JsArray, Js, JsonParser}
-import dispatch.{:/, Http}
+import dispatch.{Request, :/, Http}
 import util.parsing.input.CharSequenceReader
 import util.parsing.json.JSON
 
@@ -12,11 +12,20 @@ import util.parsing.json.JSON
  */
 
 class TerrastoreClient (hostName: String, port: Int) {
-  def getBuckets : JsValue = {
+  def getBucketNames : List[Any] = {
     val http = new Http
     val req = :/(hostName, port)
     val res = http(req as_str)
-    JsonParser (new CharSequenceReader(res))
+    JSON.parse(res) match {
+      case Some(s) => s
+      case None => List.empty
+    }
+  }
+
+  def removeBucket (bucketName:String) = {
+    val http = new Http
+    val req = :/(hostName, port)
+    http(req.DELETE / bucketName as_str)
   }
 
   def putDocument (bucket:String, key: String, content:String) = {
