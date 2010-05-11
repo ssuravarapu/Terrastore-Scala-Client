@@ -12,14 +12,21 @@ import util.parsing.json.JSON
  */
 
 class TerrastoreClient (hostName: String, port: Int) {
-  def getBucketNames : List[Any] = {
+  def getBucketNames : List[String] = {
     val http = new Http
     val req = :/(hostName, port)
     val res = http(req as_str)
     JSON.parse(res) match {
-      case Some(s) => s
+      case Some(list) => list map {_.toString} 
       case None => List.empty
     }
+  }
+
+  def getBuckets : List[Any] = {
+    val allBuckets = for {
+      bucket <- getBucketNames
+    } yield getAllValues(bucket)
+    allBuckets
   }
 
   def removeBucket (bucketName:String) = {
