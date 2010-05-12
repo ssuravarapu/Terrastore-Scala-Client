@@ -11,7 +11,16 @@ import org.specs._
 object TerrastoreClientSpec extends Specification {
 
   "Put a new document" should {
+    "add the document specified in the bucket specified" in {
       val client:TerrastoreClient = new TerrastoreClient("localhost", 8010)
-      client.putDocument("SPS1", "key1", "{\"value1\"")
+      client.putDocument("SPS1", "key1", "{\"color\":\"red\", \"value\":\"#f00\"}")
     }
+  }
+
+  "Get the bucket list" should {
+    "have SPS1 in it" in {
+      val client:TerrastoreClient = new TerrastoreClient("localhost", 8010)
+      "SPS1" must beOneOf(client.getBucketNames)
+    }
+  }
 }
