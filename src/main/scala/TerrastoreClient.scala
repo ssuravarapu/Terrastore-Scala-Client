@@ -1,17 +1,12 @@
 import dispatch.json.{JsValue, JsArray, Js, JsonParser}
+import net.liftweb.json.Formats
+import net.liftweb.json.JsonParser._
 import dispatch.{Request, :/, Http}
 import util.parsing.input.CharSequenceReader
 import util.parsing.json.JSON
 
-/**
- * Created by IntelliJ IDEA.
- * User: surya.suravarapu
- * Date: May 5, 2010
- * Time: 11:48:52 AM
- * To change this template use File | Settings | File Templates.
- */
-
 class TerrastoreClient (hostName: String, port: Int) {
+
   def getBucketNames : List[String] = {
     val http = new Http
     val req = :/(hostName, port)
@@ -35,13 +30,28 @@ class TerrastoreClient (hostName: String, port: Int) {
     http(req.DELETE / bucketName >|)
   }
 
-  def putDocument (bucket:String, key: String, content:String) = {
+  def putValue (bucket:String, key: String, content:String) = {
       val http = new Http
       val req = :/(hostName, port) / bucket / key <<< content <:< Map("Content-Type"-> "application/json")
       val res = http (req >|)
   }
 
-  def getValue (bucket: String, key: String) : Any = {
+  def removeValue (bucket:String, key:String) = {
+    val http = new Http
+    val req = :/(hostName, port)
+    http(req.DELETE / bucket / key >|)  
+  }
+
+  def getValue[T](bucket: String, key: String)(implicit formats: Formats, mf: scala.reflect.Manifest[T]) : T = {
+    val http = new Http
+    val req = :/(hostName, port) / bucket / key
+    val res = http(req as_str)
+    println("res: " + res)
+    implicit val formats = net.liftweb.json.DefaultFormats
+    parse(res).extract[T]
+  }
+
+  def getValue2 (bucket: String, key: String) : Any = {
     val http = new Http
     val req = :/(hostName, port) / bucket / key
     val res = http(req as_str)
