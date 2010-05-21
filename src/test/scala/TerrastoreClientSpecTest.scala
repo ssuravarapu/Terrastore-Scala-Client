@@ -6,23 +6,46 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
   implicit val formats = net.liftweb.json.DefaultFormats
   val client = TerrastoreClient("localhost", 8010)
   val bucketName = "XYZ1234"
-  val key = "person1"
-  val jsonStr = "{\"name\": \"Surya Suravarapu\", \"address\": {\"street\": \"622 Sunderland\",\"city\": \"Chester Springs\"}}"
+  val key1 = "person1"
+  val jsonStr1 = "{\"name\": \"Surya Suravarapu\", \"address\": {\"street\": \"622 Sunderland\",\"city\": \"Chester Springs\"}}"
+  val key2 = "person2"
+  val jsonStr2 = "{\"name\": \"Joe Schmo\", \"address\": {\"street\": \"Some Street\",\"city\": \"Some City\"}}"
 
-  "Put a new document" should {
-    "add the document specified in the bucket specified" in {
-      client.putValue(bucketName, key, jsonStr)
-      client.getBucketNames must contain(bucketName)
+  "Delete a bucket" should {
+    "remove the bucket specified" in {
+      client.removeBucket(bucketName)
+      client.getBucketNames must not contain bucketName
     }
   }
 
-  "Get a document" should {
+  "Put a new value" should {
+    "add/update the value specified in the bucket and key specified" in {
+      client.putValue(bucketName, key1, jsonStr1)
+      client.getBucketNames must contain(bucketName)
+    }
+    "add another value" in {
+      client.putValue(bucketName, key2, jsonStr2)
+    }
+  }
+
+  "Get a value" should {
     "have the value specified" in {
-      val person = client.getValue[Person](bucketName, key)
+      val person = client.getValue[Person](bucketName, key1)
       person.name must equalIgnoreSpace("Surya Suravarapu")
       person.address.street must equalIgnoreSpace("622 Sunderland")
       person.address.city must equalIgnoreSpace("Chester Springs")
     }
+  }
+
+  "Get all values" should {
+    "returns all values when no limit" in {
+      val persons = client.getAllValues[Values](bucketName, 0)
+      persons.values must have size(2)
+    }
+//    "returns only one value with limit one" in {
+//      val persons = client.getAllValues[Persons](bucketName, 1)
+//      persons.personMap must have size(1)
+//    }
   }
 
   "Get the bucket list" should {
@@ -34,15 +57,8 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
 
   "Delete a value" should {
     "remove the value specified" in {
-      client.removeValue(bucketName, key)
-      client.getValue[Person](bucketName, key) must throwA[StatusCode]
-    }
-  }
-
-  "Delete a bucket" should {
-    "remove the bucket specified" in {
-      client.removeBucket(bucketName)
-      client.getBucketNames must not contain bucketName
+      client.removeValue(bucketName, key1)
+      client.getValue[Person](bucketName, key1) must throwA[StatusCode]
     }
   }
 }
@@ -50,4 +66,4 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
 case class Child(name: String, age: Int, birthdate: Option[java.util.Date])
 case class Address(street: String, city: String)
 case class Person(name: String, address: Address, children: List[Child])
-
+case class Values(values: Map[String, Person])
