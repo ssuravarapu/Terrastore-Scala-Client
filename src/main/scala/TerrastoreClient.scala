@@ -1,6 +1,7 @@
-import net.liftweb.json.Formats
 import net.liftweb.json.JsonParser._
+import net.liftweb.json.JsonAST._
 import dispatch.{:/, Http}
+import net.liftweb.json.{JsonAST, Formats}
 import util.parsing.json.JSON
 
 case class TerrastoreClient (hostName: String, port: Int) {
@@ -31,16 +32,13 @@ case class TerrastoreClient (hostName: String, port: Int) {
 
   def getValue[T](bucket: String, key: String)(implicit formats: Formats, mf: scala.reflect.Manifest[T]) : T = {
     val res = http(req / bucket / key as_str)
-    println("res: " + res)
     parse(res).extract[T]
   }
 
-  def getAllValues[T](bucket:String, limit:Int)(implicit formats: Formats, mf: scala.reflect.Manifest[T]) : T = {
+  def getAllValues[T](bucket:String, limit:Int)(implicit formats: Formats, mf: scala.reflect.Manifest[T]) : Map[String, T] = {
     val res = http(req / bucket <<? Map("limit" -> limit) as_str)
-    println("res: " + res)
-    println(parse(res))
-    var values = parse(res).extract[T]
-    println("values: " + values)
-    values
+    Map() ++ parse(res).children.map {
+      case f: JField => (f.name, f.extract[T])
+    }
   }
 }
