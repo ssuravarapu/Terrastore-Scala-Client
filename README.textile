@@ -1,10 +1,12 @@
 h1. Terrastore-Scala-Client
+
 As the name indicates this is a Scala client for "Terrastore":http://code.google.com/p/terrastore. Terrastore is a modern document store which provides advanced scalability and elasticity features without sacrificing consistency.
 
 
 TerrsatoreClient is the main class that currently supports all the operations on both buckets and on the objects placed in the buckets.
 
 h3. Dependencies
+
 This project relied heavily on databinder dispatch's http library (which is backed by Apache's HttpClient), and on Lift-Json for parsing and extracting JSON.
 
 h3. Usages
