@@ -1,5 +1,3 @@
-<H2>
-Terrastore-Scala-Client
-</H2>
+<H2>Terrastore-Scala-Client</H2>
 As the name indicates this is a Scala client for "Terrastore":http://code.google.com/p/terrastore.
 Terrastore is a modern document store which provides advanced scalability and elasticity features without sacrificing consistency.
