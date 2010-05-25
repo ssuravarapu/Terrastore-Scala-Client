@@ -7,9 +7,9 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
   val client = TerrastoreClient("localhost", 8010)
   val bucketName = "XYZ1234"
   val key1 = "person1"
-  val jsonStr1 = """{"name": "Surya Suravarapu", "address": {"street": "622 Sunderland","city": "Chester Springs"}}"""
+  val jsonStr1 = """{"name": "Name One", "address": {"street": "Street One","city": "City One"}}"""
   val key2 = "person2"
-  val jsonStr2 = """{"name": "Joe Schmo", "address": {"street": "Some Street","city": "Some City"}}"""
+  val jsonStr2 = """{"name": "Name Two", "address": {"street": "Street 2","city": "City Two"}}"""
 
   "Delete a bucket" should {
     "remove the bucket specified" in {
@@ -22,20 +22,20 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
     "add/update the value specified in the bucket and key specified" in {
       client.putDocument(bucketName, key1, jsonStr1)
       client.getBucketNames must contain(bucketName)
-      client.getDocument[Person](bucketName, key1) must beEqualTo(Person("Surya Suravarapu",Address("622 Sunderland","Chester Springs")))
+      client.getDocument[Person](bucketName, key1) must beEqualTo(Person("Name One",Address("Street One","City One")))
     }
     "add another value" in {
       client.putDocument(bucketName, key2, jsonStr2)
-      client.getDocument[Person](bucketName, key2) must beEqualTo(Person("Joe Schmo",Address("Some Street","Some City")))
+      client.getDocument[Person](bucketName, key2) must beEqualTo(Person("Name Two",Address("Street Two","City Two")))
     }
   }
 
   "Get a value" should {
     "have the value specified" in {
       val person = client.getDocument[Person](bucketName, key1)
-      person.name must equalIgnoreSpace("Surya Suravarapu")
-      person.address.street must equalIgnoreSpace("622 Sunderland")
-      person.address.city must equalIgnoreSpace("Chester Springs")
+      person.name must equalIgnoreSpace("Name One")
+      person.address.street must equalIgnoreSpace("Street One")
+      person.address.city must equalIgnoreSpace("City One")
     }
   }
 
@@ -61,13 +61,12 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
     "export all the documents in a bucket to a specified destination" in {
       val file = bucketName + ".bak"
       client.exportBackup(bucketName, file, "SECRET-KEY")
-      
     }
     "restore/import a backup of documents for a give bucket" in {
       client.removeDocument(bucketName, key1)
       client.getDocument[Person](bucketName, key1) must throwA[StatusCode]
       client.importBackup(bucketName, bucketName + ".bak", "SECRET-KEY")
-      client.getDocument[Person](bucketName, key1) must beEqualTo(Person("Surya Suravarapu",Address("622 Sunderland","Chester Springs")))
+      client.getDocument[Person](bucketName, key1) must beEqualTo(Person("Name One",Address("Street One","City One")))
     }
   }
 
@@ -77,15 +76,6 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
       client.getDocument[Person](bucketName, key1) must throwA[StatusCode]
     }
   }
-
-//  "Import backup" should {
-//    "restore a backup of documents for a give bucket" in {
-//      client.getDocument[Person](bucketName, key1) must throwA[StatusCode]
-//      "C:\\terrastore\\0.5.0\\server1\\backups\\" + bucketName + ".bak" must beAFilePath
-//      client.importBackup(bucketName, bucketName + ".bak", "SECRET-KEY")
-//      client.getDocument[Person](bucketName, key1) must beEqualTo(Person("Surya Suravarapu",Address("622 Sunderland","Chester Springs")))
-//    }
-//  }
 }
 
 case class Address(street: String, city: String)

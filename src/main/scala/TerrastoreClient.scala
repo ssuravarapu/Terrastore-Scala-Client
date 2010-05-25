@@ -1,6 +1,6 @@
+import dispatch.{:/, Http}
 import net.liftweb.json.JsonParser._
 import net.liftweb.json.JsonAST._
-import dispatch.{:/, Http}
 import net.liftweb.json.{Formats}
 import util.parsing.json.JSON
 
@@ -13,7 +13,7 @@ case class TerrastoreClient (hostName: String, port: Int) {
   def getBucketNames : List[String] = {
     val res = http(req as_str)
     JSON.parse(res) match {
-      case Some(list) => list map {_.toString} 
+      case Some(list) => list map {_.toString}
       case None => List.empty
     }
   }
@@ -43,12 +43,10 @@ case class TerrastoreClient (hostName: String, port: Int) {
   }
 
   def exportBackup(bucket:String, destination:String, secret:String) = {
-    val paramsMap = Map("destination" -> destination, "secret" -> secret)
-    http(req.POST / bucket / "export" <<? paramsMap <:< Map("Content-Type" -> "application/json") >|)
+    http(req.POST / bucket / "export" <<? Map("destination" -> destination, "secret" -> secret) <:< Map("Content-Type" -> "application/json") >|)
   }
 
   def importBackup(bucket:String, source:String, secret:String) = {
-    val paramsMap = Map("source" -> source, "secret" -> secret)
-    http(req.POST / bucket / "import" <<? paramsMap <:< Map("Content-Type" -> "application/json") >|)
+    http(req.POST / bucket / "import" <<? Map("source" -> source, "secret" -> secret) <:< Map("Content-Type" -> "application/json") >|)
   }
 }
