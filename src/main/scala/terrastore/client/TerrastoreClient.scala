@@ -45,9 +45,17 @@ case class TerrastoreClient (hostName: String, port: Int) {
   }
 
   def doRangeQuery[T](bucket:String, startKey:String, endKey:String, limit:Int, comparator:String, predicate:String,
-          timeToLive:Long)(implicit formats: Formats, mf: scala.reflect.Manifest[T]) : Map[String, T] = {
+          timeToLive:Long)(implicit formats: Formats, mf: scala.reflect.Manifest[T]):Map[String, T] = {
     val params = Map ("startKey" -> startKey, "endKey" -> endKey, "limit" -> limit)
     val res = http(req / bucket / "range" <<? params as_str)
+    Map() ++ parse(res).children.map {
+      case f: JField => (f.name, f.extract[T])
+    }
+  }
+
+  def doPredicateQuery[T](bucket:String, predicate:String)
+      (implicit formats: Formats, mf: scala.reflect.Manifest[T]):Map[String, T] = {
+    val res = http(req / bucket / "predicate" <<? Map("predicate" -> predicate) as_str)
     Map() ++ parse(res).children.map {
       case f: JField => (f.name, f.extract[T])
     }
