@@ -1,7 +1,7 @@
 import net.liftweb.json.JsonParser._
 import net.liftweb.json.JsonAST._
 import dispatch.{:/, Http}
-import net.liftweb.json.{JsonAST, Formats}
+import net.liftweb.json.{Formats}
 import util.parsing.json.JSON
 
 case class TerrastoreClient (hostName: String, port: Int) {
@@ -22,23 +22,33 @@ case class TerrastoreClient (hostName: String, port: Int) {
     http(req.DELETE / bucketName >|)
   }
 
-  def putValue (bucket:String, key: String, content:String) = {
+  def putDocument (bucket:String, key: String, content:String) = {
     http(req / bucket / key <<< content <:< Map("Content-Type" -> "application/json") >|)
   }
 
-  def removeValue (bucket:String, key:String) = {
+  def removeDocument (bucket:String, key:String) = {
     http(req.DELETE / bucket / key >|)
   }
 
-  def getValue[T](bucket: String, key: String)(implicit formats: Formats, mf: scala.reflect.Manifest[T]) : T = {
+  def getDocument[T](bucket: String, key: String)(implicit formats: Formats, mf: scala.reflect.Manifest[T]) : T = {
     val res = http(req / bucket / key as_str)
     parse(res).extract[T]
   }
 
-  def getAllValues[T](bucket:String, limit:Int)(implicit formats: Formats, mf: scala.reflect.Manifest[T]) : Map[String, T] = {
+  def getAllDocuments[T](bucket:String, limit:Int)(implicit formats: Formats, mf: scala.reflect.Manifest[T]) : Map[String, T] = {
     val res = http(req / bucket <<? Map("limit" -> limit) as_str)
     Map() ++ parse(res).children.map {
       case f: JField => (f.name, f.extract[T])
     }
+  }
+
+  def exportBackup(bucket:String, destination:String, secret:String) = {
+    val paramsMap = Map("destination" -> destination, "secret" -> secret)
+    http(req.POST / bucket / "export" <<? paramsMap <:< Map("Content-Type" -> "application/json") >|)
+  }
+
+  def importBackup(bucket:String, source:String, secret:String) = {
+    val paramsMap = Map("source" -> source, "secret" -> secret)
+    http(req.POST / bucket / "import" <<? paramsMap <:< Map("Content-Type" -> "application/json") >|)
   }
 }
