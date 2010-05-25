@@ -5,6 +5,14 @@ import org.specs._
 
 class TerrastoreClientSpecTest extends SpecificationWithJUnit {
   implicit val formats = net.liftweb.json.DefaultFormats
+  val client = TerrastoreClient("localhost", 8010)
+  val bucketName = "BucketOne"
+  val key1 = "person1"
+  val jsonStr1 = """{"name": "Name One", "address": {"street": "Street One","city": "City One"}}"""
+  val key2 = "person2"
+  val jsonStr2 = """{"name": "Name Two", "address": {"street": "Street Two","city": "City Two"}}"""
+  val key3 = "person3"
+  val jsonStr3 = """{"name": "Name Three", "address": {"street": "Street Three","city": "City Three"}}"""
 
   "Delete a bucket" should {
     "remove the bucket specified" in {
@@ -46,7 +54,7 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
   }
 
   "Get the bucket list" should {
-    "have SPS1 in it" in {
+    "have an already created bucket in it" in {
       val bucketNames = client.getBucketNames
       bucketNames must contain(bucketName)
     }
@@ -65,19 +73,23 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
     }
   }
 
+  "Do a range query" should {
+    "get all the documents with the given range of keys" in {
+      client.putDocument(bucketName, key1, jsonStr1)
+      client.putDocument(bucketName, key2, jsonStr2)
+      client.putDocument(bucketName, key3, jsonStr3)
+      client.getAllDocuments[Person](bucketName, 0) must have size(3)
+      val personMap = client.doRangeQuery[Person](bucketName, key2, key3, 0, "", "", 0)
+      personMap must have size(2)
+    }
+  }
+
   "Delete a value" should {
     "remove the value specified" in {
       client.removeDocument(bucketName, key1)
       client.getDocument[Person](bucketName, key1) must throwA[StatusCode]
     }
   }
-
-  val client = TerrastoreClient("localhost", 8010)
-  val bucketName = "Bucket One"
-  val key1 = "person1"
-  val jsonStr1 = """{"name": "Name One", "address": {"street": "Street One","city": "City One"}}"""
-  val key2 = "person2"
-  val jsonStr2 = """{"name": "Name Two", "address": {"street": "Street 2","city": "City Two"}}"""
 }
 
 case class Address(street: String, city: String)

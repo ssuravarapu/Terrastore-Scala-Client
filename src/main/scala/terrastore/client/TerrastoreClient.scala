@@ -44,11 +44,22 @@ case class TerrastoreClient (hostName: String, port: Int) {
     }
   }
 
+  def doRangeQuery[T](bucket:String, startKey:String, endKey:String, limit:Int, comparator:String, predicate:String,
+          timeToLive:Long)(implicit formats: Formats, mf: scala.reflect.Manifest[T]) : Map[String, T] = {
+    val params = Map ("startKey" -> startKey, "endKey" -> endKey, "limit" -> limit)
+    val res = http(req / bucket / "range" <<? params as_str)
+    Map() ++ parse(res).children.map {
+      case f: JField => (f.name, f.extract[T])
+    }
+  }
+
   def exportBackup(bucket:String, destination:String, secret:String) = {
-    http(req.POST / bucket / "export" <<? Map("destination" -> destination, "secret" -> secret) <:< Map("Content-Type" -> "application/json") >|)
+    http(req.POST / bucket / "export" <<? Map("destination" -> destination, "secret" -> secret) <:<
+            Map("Content-Type" -> "application/json") >|)
   }
 
   def importBackup(bucket:String, source:String, secret:String) = {
-    http(req.POST / bucket / "import" <<? Map("source" -> source, "secret" -> secret) <:< Map("Content-Type" -> "application/json") >|)
+    http(req.POST / bucket / "import" <<? Map("source" -> source, "secret" -> secret) <:<
+            Map("Content-Type" -> "application/json") >|)
   }
 }
