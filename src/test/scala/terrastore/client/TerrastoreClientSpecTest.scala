@@ -1,15 +1,10 @@
+package terrastore.client
+
 import dispatch.StatusCode
-import java.lang.String
 import org.specs._
 
 class TerrastoreClientSpecTest extends SpecificationWithJUnit {
   implicit val formats = net.liftweb.json.DefaultFormats
-  val client = TerrastoreClient("localhost", 8010)
-  val bucketName = "XYZ1234"
-  val key1 = "person1"
-  val jsonStr1 = """{"name": "Name One", "address": {"street": "Street One","city": "City One"}}"""
-  val key2 = "person2"
-  val jsonStr2 = """{"name": "Name Two", "address": {"street": "Street 2","city": "City Two"}}"""
 
   "Delete a bucket" should {
     "remove the bucket specified" in {
@@ -76,6 +71,13 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
       client.getDocument[Person](bucketName, key1) must throwA[StatusCode]
     }
   }
+
+  val client = TerrastoreClient("localhost", 8010)
+  val bucketName = "Bucket One"
+  val key1 = "person1"
+  val jsonStr1 = """{"name": "Name One", "address": {"street": "Street One","city": "City One"}}"""
+  val key2 = "person2"
+  val jsonStr2 = """{"name": "Name Two", "address": {"street": "Street 2","city": "City Two"}}"""
 }
 
 case class Address(street: String, city: String)

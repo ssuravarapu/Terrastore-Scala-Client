@@ -1,3 +1,5 @@
+package terrastore.client
+
 import dispatch.{:/, Http}
 import net.liftweb.json.JsonParser._
 import net.liftweb.json.JsonAST._
