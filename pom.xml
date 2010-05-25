@@ -21,11 +21,6 @@
             <version>0.7.2</version>
         </dependency>
         <dependency>
-            <groupId>net.databinder</groupId>
-            <artifactId>dispatch-json_2.8.0.Beta1</artifactId>
-            <version>0.7.2</version>
-        </dependency>
-        <dependency>
             <groupId>org.scala-tools.testing</groupId>
             <artifactId>specs_2.8.0.Beta1</artifactId>
             <version>1.6.4</version>
