@@ -67,7 +67,7 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
     }
     "restore/import a backup of documents for a give bucket" in {
       client.removeDocument(bucketName, key1)
-      client.getDocument[Person](bucketName, key1) must throwA[StatusCode]
+      client.getDocument[Person](bucketName, key1) must throwA[TerrastoreException]
       client.importBackup(bucketName, bucketName + ".bak", "SECRET-KEY")
       client.getDocument[Person](bucketName, key1) must beEqualTo(Person("Name One",Address("Street One","City One")))
     }
@@ -87,7 +87,7 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
   "Delete a value" should {
     "remove the value specified" in {
       client.removeDocument(bucketName, key1)
-      client.getDocument[Person](bucketName, key1) must throwA[StatusCode]
+      client.getDocument[Person](bucketName, key1) must throwA[TerrastoreException]
     }
   }
 }
