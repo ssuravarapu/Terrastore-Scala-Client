@@ -1,6 +1,5 @@
 package terrastore.client
 
-import dispatch.StatusCode
 import org.specs._
 
 class TerrastoreClientSpecTest extends SpecificationWithJUnit {
