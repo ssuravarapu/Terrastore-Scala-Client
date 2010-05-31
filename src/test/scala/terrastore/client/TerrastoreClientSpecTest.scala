@@ -20,20 +20,20 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
     }
   }
 
-  "Put a new value" should {
-    "add/update the value specified in the bucket and key specified" in {
+  "Put a new document" should {
+    "add the document specified in the bucket and key specified" in {
       client.putDocument(bucketName, key1, jsonStr1)
       client.getBucketNames must contain(bucketName)
       client.getDocument[Person](bucketName, key1) must beEqualTo(Person("Name One",Address("Street One","City One")))
     }
-    "add another value" in {
+    "add another document" in {
       client.putDocument(bucketName, key2, jsonStr2)
       client.getDocument[Person](bucketName, key2) must beEqualTo(Person("Name Two",Address("Street Two","City Two")))
     }
   }
 
-  "Get a value" should {
-    "have the value specified" in {
+  "Get a document" should {
+    "should retrieve the document for a given bucket and key" in {
       val person = client.getDocument[Person](bucketName, key1)
       person.name must equalIgnoreSpace("Name One")
       person.address.street must equalIgnoreSpace("Street One")
@@ -41,19 +41,19 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
     }
   }
 
-  "Get all values" should {
-    "returns all values when no limit" in {
+  "Get all documents" should {
+    "returns all the documents when no limit" in {
       val personMap = client.getAllDocuments[Person](bucketName, 0)
       personMap must have size(2)
     }
-    "returns only one value with limit one" in {
+    "returns only one document with limit one" in {
       val personMap = client.getAllDocuments[Person](bucketName, 1)
       personMap must have size(1)
     }
   }
 
   "Get the bucket list" should {
-    "have an already created bucket in it" in {
+    "returns the names of all the buckets" in {
       val bucketNames = client.getBucketNames
       bucketNames must contain(bucketName)
     }
