@@ -33,6 +33,11 @@ case class TerrastoreClient (hostName: String, port: Int) {
     httpExecute[Unit](req.DELETE / bucket / key >|)
   }
 
+  def update(bucket:String, key:String, function:String, timeout:Long, body:String) = {
+    val params = Map("function" -> function, "timeout" -> timeout)
+    httpExecute[Unit](req.POST / bucket / key / "update" <<? params << body <:< Map("Content-Type" -> "application/json") >|)
+  }
+
   def getDocument[T](bucket: String, key: String)(implicit formats: Formats, mf: scala.reflect.Manifest[T]) : T = {
     val res = httpExecute[String](req / bucket / key as_str)
     parse(res).extract[T]

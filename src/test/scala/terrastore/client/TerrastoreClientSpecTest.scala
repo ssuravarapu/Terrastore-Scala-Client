@@ -59,6 +59,15 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
     }
   }
 
+  "Server side update function" should {
+    "use the function provided to perform update" in {
+      client.putDocument(bucketName, key2, jsonStr2)
+      client.getDocument[Person](bucketName, key2) must beEqualTo(Person("Name Two",Address("Street Two","City Two")))
+      client.update(bucketName, key2, "replace", 2000, jsonStr3)
+      client.getDocument[Person](bucketName, key2) must beEqualTo(Person("Name Three",Address("Street Three","City Three")))
+    }
+  }
+
   "Export and import backup" should {
     "export the bucket specified and then restore" in {
       val file = bucketName + ".bak"
@@ -78,13 +87,13 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
       client.getAllDocuments[Person](bucketName, 0) must have size(3)
       val personMap = client.doRangeQuery[Person](bucketName, RangeQueryParam(key2, key3, 0, "lexical-asc", 0))
       personMap must have size(2)
+      personMap.keysIterator.next must equalIgnoreCase(key2)
     }
   }
 
   "A predicate query" should {
     "get only those documents that match the predicate" in {
       val personMap = client.doPredicateQuery[Person](bucketName, "jxpath:/name[.='Name Two']")
-      println("personMap: " + personMap)
       personMap("person2") must beEqualTo (Person("Name Two",Address("Street Two","City Two")))
     }
   }
