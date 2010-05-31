@@ -60,11 +60,9 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
   }
 
   "Export and import backup" should {
-    "export all the documents in a bucket to a specified destination" in {
+    "export the bucket specified and then restore" in {
       val file = bucketName + ".bak"
       client.exportBackup(bucketName, file, "SECRET-KEY")
-    }
-    "restore/import a backup of documents for a give bucket" in {
       client.removeDocument(bucketName, key1)
       client.getDocument[Person](bucketName, key1) must throwA[TerrastoreException]
       client.importBackup(bucketName, bucketName + ".bak", "SECRET-KEY")
@@ -72,14 +70,22 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
     }
   }
 
-  "Do a range query" should {
+  "A range query" should {
     "get all the documents with the given range of keys" in {
       client.putDocument(bucketName, key1, jsonStr1)
       client.putDocument(bucketName, key2, jsonStr2)
       client.putDocument(bucketName, key3, jsonStr3)
       client.getAllDocuments[Person](bucketName, 0) must have size(3)
-      val personMap = client.doRangeQuery[Person](bucketName, key2, key3, 0, "", "", 0)
+      val personMap = client.doRangeQuery[Person](bucketName, RangeQueryParam(key2, key3, 0, "lexical-asc", 0))
       personMap must have size(2)
+    }
+  }
+
+  "A predicate query" should {
+    "get only those documents that match the predicate" in {
+      val personMap = client.doPredicateQuery[Person](bucketName, "jxpath:/name[.='Name Two']")
+      println("personMap: " + personMap)
+      personMap("person2") must beEqualTo (Person("Name Two",Address("Street Two","City Two")))
     }
   }
 

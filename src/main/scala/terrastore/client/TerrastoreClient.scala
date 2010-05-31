@@ -1,9 +1,10 @@
 package terrastore.client
 
+import util.parsing.json.JSON
+
 import net.liftweb.json.JsonParser._
 import net.liftweb.json.JsonAST._
 import net.liftweb.json.{Formats}
-import util.parsing.json.JSON
 import dispatch._
 
 case class TerrastoreClient (hostName: String, port: Int) {
@@ -42,9 +43,9 @@ case class TerrastoreClient (hostName: String, port: Int) {
     parseJsonToMap[T](res)(formats, mf)
   }
 
-  def doRangeQuery[T](bucket:String, startKey:String, endKey:String, limit:Int, comparator:String, predicate:String,
-          timeToLive:Long)(implicit formats: Formats, mf: scala.reflect.Manifest[T]):Map[String, T] = {
-    val params = Map ("startKey" -> startKey, "endKey" -> endKey, "limit" -> limit)
+  def doRangeQuery[T](bucket:String, qp:RangeQueryParam)
+    (implicit formats: Formats, mf: scala.reflect.Manifest[T]):Map[String, T] = {
+    val params = Map ("startKey" -> qp.startKey, "endKey" -> qp.endKey, "limit" -> qp.limit, "comparator" -> qp.comparator)
     val res = httpExecute[String](req / bucket / "range" <<? params as_str)
     parseJsonToMap[T](res)(formats, mf)
   }
@@ -70,8 +71,12 @@ case class TerrastoreClient (hostName: String, port: Int) {
       http(handler)
     } catch {
       case e: StatusCode => {
-        val error = parse(e.contents).extract[Error]
-        throw new TerrastoreException(error)
+        if (e.code == 500) {
+          throw new RuntimeException(e)
+        } else {
+          val error = parse(e.contents).extract[Error]
+          throw new TerrastoreException(error)          
+        }
       }
     }
   }
@@ -85,6 +90,7 @@ case class TerrastoreClient (hostName: String, port: Int) {
   }
 }
 
+case class RangeQueryParam(startKey:String, endKey:String, limit:Int, comparator:String, timeToLive:Long)
 case class Error(message:String, code:Int)
 case class TerrastoreException(error:Error)
-        extends Exception("Error in response with code: " + error.code + " and message: " + error.message)
+  extends Exception("Error in response with code: " + error.code + " and message: " + error.message)
