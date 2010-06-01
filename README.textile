@@ -90,7 +90,7 @@ h3. Bucket operations
 
 * To get a bucket list ...
 <pre>
-    val bucketNames = client.getBucketNames
+    val bucketNames = tc.getBucketNames
     Result: List(BucketOne, SPS1, SPS2, XYZ1234, 1274286609248)
 </pre>
 
