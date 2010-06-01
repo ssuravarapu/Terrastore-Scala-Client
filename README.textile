@@ -3,7 +3,7 @@ h1. Terrastore-Scala-Client
 As the name indicates this is a Scala client for "Terrastore":http://code.google.com/p/terrastore. Terrastore is a modern document store which provides advanced scalability and elasticity features without sacrificing consistency.
 
 
-TerrsatoreClient is the main class that currently supports all the operations on both buckets and on the objects placed in the buckets.
+"TerrsatoreClient":http://github.com/ssuravarapu/Terrastore-Scala-Client/blob/master/src/main/scala/terrastore/client/TerrastoreClient.scala is the main class that currently supports all the operations on both buckets and on the objects placed in the buckets.
 
 h2. Dependencies
 
@@ -11,7 +11,7 @@ Dependencies are listed in pom.xml. This project relies on databinder dispatch's
 
 h2. Usages
 
-If you look into TerrastoreClientSpec class, a Scala Specs class the usages are obvious. However, if you are not familiar with Specs, here is a primer:
+If you look into "TerrastoreClientSpec":http://github.com/ssuravarapu/Terrastore-Scala-Client/blob/master/src/test/scala/terrastore/client/TerrastoreClientSpecTest.scala class, a Scala Specs class the usages are obvious. Here is a brief primer, any way:
 
 Before going into usages let's define a few sample keys and documents --
 <pre>
