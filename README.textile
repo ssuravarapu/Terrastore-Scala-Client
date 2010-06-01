@@ -5,11 +5,11 @@ As the name indicates this is a Scala client for "Terrastore":http://code.google
 
 TerrsatoreClient is the main class that currently supports all the operations on both buckets and on the objects placed in the buckets.
 
-h3. Dependencies
+h2. Dependencies
 
 Dependencies are listed in pom.xml. This project relies on databinder dispatch's http library (which is backed by Apache's HttpClient), and on Lift-Json for parsing and extracting JSON. Two extremely well-written libraries!
 
-h3. Usages
+h2. Usages
 
 If you look into TerrastoreClientSpec class, a Scala Specs class the usages are obvious. However, if you are not familiar with Specs, here is a primer:
 
@@ -30,58 +30,78 @@ Also, define corresponding Scala case classes so that we can deserialize or extr
 
 Create a new TerrastoreClient instance as ...
 <pre>
-    val client = TerrastoreClient("localhost", 8010)
+    val tc = TerrastoreClient("localhost", 8010)
 </pre>
+
+h3. Document Operations
 
 * To add a new document for the provided bucket and key ...
 <pre>
-    client.putDocument(bucketName, key1, jsonStr1)
+    tc.putDocument(bucketName, key1, jsonStr1)
 </pre>
 
 * To get that document ...
 <pre>
-    val person = client.getDocument[Person](bucketName, key1)
+    val person = tc.getDocument[Person](bucketName, key1)
+    Result> Person(Name One,Address(Street One,City One))
 </pre>
 
 In the above example the client retieves the document in the native format (JSON) and extracts it into Person object.
 
 * To remove that document ...
 <pre>
-    client.removeDocument(bucketName, key1)
+    tc.removeDocument(bucketName, key1)
 </pre>
 
 * To get all the documents ...
 ** with no limit ...
 <pre>
-    val personMap = client.getAllDocuments[Person](bucketName, 0)
+    val personMap = tc.getAllDocuments[Person](bucketName, 0)
+    Result> Map(person1 -> Person(Name One,Address(Street One,City One)), person2 -> Person(Name Two,Address(Street Two,City Two)))
 </pre>
 
 ** with a limit (of one, in this case) ...
 <pre>
-    val personMap = client.getAllDocuments[Person](bucketName, 1)
+    val personMap = tc.getAllDocuments[Person](bucketName, 1)
+    Result> Map(person1 -> Person(Name One,Address(Street One,City One)))
 </pre>
 
 * Update with a server-side function ...
 <pre>
     val jsonStr3 = """{"name": "Name Three", "address": {"street": "Street Three","city": "City Three"}}"""
-    client.update(bucketName, key2, "replace", 2000, jsonStr3)
+    tc.update(bucketName, key2, "replace", 2000, jsonStr3)
+    Result> key2 would now have value {"name": "Name Three", "address": {"street": "Street Three","city": "City Three"}}
 </pre>
 
 * Perform a range query ...
 <pre>
-    val personMap = client.doRangeQuery[Person](bucketName, RangeQueryParam(key2, key3, 0, "lexical-asc", 0))
+    val personMap = tc.doRangeQuery[Person](bucketName, RangeQueryParam(key2, key3, 0, "lexical-asc", 0))
+    Result> Map(person2 -> Person(Name Two,Address(Street Two,City Two)), person3 -> Person(Name Three,Address(Street Three,City Three)))
 </pre>
 
 * Perform a predicate query ...
 <pre>
-    val personMap = client.doPredicateQuery[Person](bucketName, "jxpath:/name[.='Name Two']")
-</pre>    
+    val personMap = tc.doPredicateQuery[Person](bucketName, "jxpath:/name[.='Name Two']")
+    Result> Map(person2 -> Person(Name Two,Address(Street Two,City Two)))
+</pre>
+
+h3. Bucket operations
+
+* Adding buckets is now handled implicitly by Terrastore when you add a first document into a bucket, and hence there is no client-side operation for that.
+
+* To get a bucket list ...
+<pre>
+    val bucketNames = client.getBucketNames
+    Result: List(BucketOne, SPS1, SPS2, XYZ1234, 1274286609248)
+</pre>
+
+* Removing buckets is now handled implicitly by Terrastore when the last document is removed from that bucket, and hence there is no client-side operation for that.
 
 * Export and import a bucket ...
 <pre>
     val file = bucketName + ".bak"
-    client.exportBackup(bucketName, file, "SECRET-KEY")
-    client.importBackup(bucketName, file, "SECRET-KEY")
+    tc.exportBackup(bucketName, file, "SECRET-KEY")
+    tc.importBackup(bucketName, file, "SECRET-KEY")
 </pre>
 
 
