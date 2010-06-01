@@ -33,7 +33,7 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
   }
 
   "Get a document" should {
-    "should retrieve the document for a given bucket and key" in {
+    "retrieve the document for a given bucket and key" in {
       val person = client.getDocument[Person](bucketName, key1)
       person.name must equalIgnoreSpace("Name One")
       person.address.street must equalIgnoreSpace("Street One")
@@ -98,8 +98,8 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
     }
   }
 
-  "Delete a value" should {
-    "remove the value specified" in {
+  "Delete a document" should {
+    "remove the document specified for a give bucket and key" in {
       client.removeDocument(bucketName, key1)
       client.getDocument[Person](bucketName, key1) must throwA[TerrastoreException]
     }
