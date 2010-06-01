@@ -59,7 +59,6 @@ In the above example the client retieves the document in the native format (JSON
     val personMap = tc.getAllDocuments[Person](bucketName, 0)
     Result> Map(person1 -> Person(Name One,Address(Street One,City One)), person2 -> Person(Name Two,Address(Street Two,City Two)))
 </pre>
-
 ** with a limit (of one, in this case) ...
 <pre>
     val personMap = tc.getAllDocuments[Person](bucketName, 1)
