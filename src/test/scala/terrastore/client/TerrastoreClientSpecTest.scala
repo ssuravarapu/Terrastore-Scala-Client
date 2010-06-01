@@ -42,7 +42,7 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
   }
 
   "Get all documents" should {
-    "returns all the documents when no limit" in {
+    "return all the documents when no limit" in {
       val personMap = client.getAllDocuments[Person](bucketName, 0)
       personMap must have size(2)
     }
