@@ -102,7 +102,3 @@ h3. Bucket operations
     tc.exportBackup(bucketName, file, "SECRET-KEY")
     tc.importBackup(bucketName, file, "SECRET-KEY")
 </pre>
-
-
-
-
