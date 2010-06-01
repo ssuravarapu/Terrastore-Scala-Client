@@ -20,7 +20,7 @@ class TerrastoreClientSpecTest extends SpecificationWithJUnit {
     }
   }
 
-  "Put a new document" should {
+  "Add a new document" should {
     "add the document specified in the bucket and key specified" in {
       client.putDocument(bucketName, key1, jsonStr1)
       client.getBucketNames must contain(bucketName)

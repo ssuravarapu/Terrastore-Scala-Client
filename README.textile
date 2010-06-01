@@ -7,6 +7,83 @@ TerrsatoreClient is the main class that currently supports all the operations on
 
 h3. Dependencies
 
-This project relied heavily on databinder dispatch's http library (which is backed by Apache's HttpClient), and on Lift-Json for parsing and extracting JSON.
+Dependencies are listed in pom.xml. This project relies on databinder dispatch's http library (which is backed by Apache's HttpClient), and on Lift-Json for parsing and extracting JSON. Two extremely well-written libraries!
 
 h3. Usages
+
+If you look into TerrastoreClientSpec class, a Scala Specs class the usages are obvious. However, if you are not familiar with Specs, here is a primer:
+
+Before going into usages let's define a few sample keys and documents --
+<pre>
+    val bucketName = "BucketOne"
+    val key1 = "person1"
+    val jsonStr1 = """{"name": "Name One", "address": {"street": "Street One","city": "City One"}}"""
+    val key2 = "person2"
+    val jsonStr2 = """{"name": "Name Two", "address": {"street": "Street Two","city": "City Two"}}"""
+</pre>
+
+Also, define corresponding Scala case classes so that we can deserialize or extract the provided JSON into them --
+<pre>
+    case class Person(name: String, address: Address)
+    case class Address(street: String, city: String)
+</pre>
+
+Create a new TerrastoreClient instance as ...
+<pre>
+    val client = TerrastoreClient("localhost", 8010)
+</pre>
+
+* To add a new document for the provided bucket and key ...
+<pre>
+    client.putDocument(bucketName, key1, jsonStr1)
+</pre>
+
+* To get that document ...
+<pre>
+    val person = client.getDocument[Person](bucketName, key1)
+</pre>
+
+In the above example the client retieves the document in the native format (JSON) and extracts it into Person object.
+
+* To remove that document ...
+<pre>
+    client.removeDocument(bucketName, key1)
+</pre>
+
+* To get all the documents ...
+** with no limit ...
+<pre>
+    val personMap = client.getAllDocuments[Person](bucketName, 0)
+</pre>
+
+** with a limit (of one, in this case) ...
+<pre>
+    val personMap = client.getAllDocuments[Person](bucketName, 1)
+</pre>
+
+* Update with a server-side function ...
+<pre>
+    val jsonStr3 = """{"name": "Name Three", "address": {"street": "Street Three","city": "City Three"}}"""
+    client.update(bucketName, key2, "replace", 2000, jsonStr3)
+</pre>
+
+* Perform a range query ...
+<pre>
+    val personMap = client.doRangeQuery[Person](bucketName, RangeQueryParam(key2, key3, 0, "lexical-asc", 0))
+</pre>
+
+* Perform a predicate query ...
+<pre>
+    val personMap = client.doPredicateQuery[Person](bucketName, "jxpath:/name[.='Name Two']")
+</pre>    
+
+* Export and import a bucket ...
+<pre>
+    val file = bucketName + ".bak"
+    client.exportBackup(bucketName, file, "SECRET-KEY")
+    client.importBackup(bucketName, file, "SECRET-KEY")
+</pre>
+
+
+
+
